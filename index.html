@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Display</title>
+    <title>Image and Data Display</title>
     <style>
         body {
             font-family: sans-serif;
@@ -11,6 +11,7 @@
             padding: 0;
             background-color: #f4f4f4;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -20,44 +21,85 @@
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 90%;
-            width: 600px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 80%;
+            max-width: 800px;
         }
 
         img {
             max-width: 100%;
             height: auto;
-            border-radius: 4px;
-            margin-top: 10px;
+            display: block;
+            margin: 0 auto;
         }
 
-        h1 {
-            color: #333;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
-        @media (max-width: 600px) {
-            .container {
-                padding: 10px;
-            }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Behold, the Image!</h1>
-        <img id="att-image-1760631901197" alt="Displayed Image">
+        <h2>Image Display</h2>
+        <img id="image">
+    </div>
+
+    <div class="container">
+        <h2>Data Table</h2>
+        <table id="data-table"></table>
     </div>
 
     <script>
-        const atts = [
-            { id: 'att-image-1760631901197', url: 'https://sanat-garg.github.io/calendigy-4/assets/image-1760631901197.b64', mime: 'image/png' },
-        ];
-        atts.forEach(({id,url,mime})=>{ fetch(url).then(r=>r.text()).then(b=>{ const el = document.getElementById(id); if(el) el.src = `data:${mime||'image/png'};base64,${b}`; }); });
+        // Image Fetching
+        fetch('https://sanat-garg.github.io/calendigy-4/assets/image.b64')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('image').src = 'data:image/png;base64,' + data;
+            });
+
+        // CSV Fetching and Table Creation
+        fetch('https://sanat-garg.github.io/calendigy-4/assets/csv-file-1760632034677.b64')
+            .then(response => response.text())
+            .then(csvData => {
+                const table = document.getElementById('data-table');
+                const rows = csvData.split('\n');
+
+                if (rows.length > 0) {
+                    const headers = rows[0].split(',');
+                    let headerRow = table.insertRow();
+                    headers.forEach(header => {
+                        let th = document.createElement('th');
+                        th.textContent = header;
+                        headerRow.appendChild(th);
+                    });
+
+                    for (let i = 1; i < rows.length; i++) {
+                        const rowData = rows[i].split(',');
+                        if (rowData.length === headers.length) { // Ensure row data matches header length
+                            let row = table.insertRow();
+                            rowData.forEach(cellData => {
+                                let cell = row.insertCell();
+                                cell.textContent = cellData;
+                            });
+                        }
+                    }
+                } else {
+                    table.innerHTML = '<p>No data to display.</p>';
+                }
+            });
     </script>
 </body>
 </html>
-```
-
-```text
